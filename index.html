@@ -72,7 +72,7 @@ async function setSession(s){
 }
 function renderLogin(){$('app').innerHTML=`<div class="card login"><h3>登入或註冊</h3><input id="lg_n" placeholder="姓名（註冊時填寫）"><input id="lg_e" type="email" placeholder="Email"><input id="lg_p" type="password" placeholder="密碼（至少 6 碼）"><div class="row"><button class="pr" onclick="login()">登入</button><button onclick="signup()">註冊為會員</button></div></div>`}
 async function login(){await act(async()=>{await run(sb.auth.signInWithPassword({email:$('lg_e').value,password:$('lg_p').value}))})}
-async function signup(){await act(async()=>{const d=await run(sb.auth.signUp({email:$('lg_e').value,password:$('lg_p').value,options:{emailRedirectTo:'https://arshanegh.github.io/Supabase/':{name:$('lg_n').value}}}));if(!d.session)toast('註冊成功，請到信箱完成驗證後再登入')})}
+async function signup(){await act(async()=>{const d=await run(sb.auth.signUp({email:$('lg_e').value,password:$('lg_p').value,options:{emailRedirectTo:'https://github.io/:{name:$('lg_n').value}}}));if(!d.session)toast('註冊成功，請到信箱完成驗證後再登入')})}
 async function logout(){await sb.auth.signOut()}
 
 async function loadCatalog(){
