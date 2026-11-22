@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>音響器材租賃暨報價管理平台</title>
+<style>
+:root{--bg:#eef2f1;--cd:#fff;--tx:#18262b;--mu:#62757b;--bd:#d6dfdd;--ac:#0f766e;--ax:#fff;--ok:#15803d;--wn:#b45309;--er:#b91c1c;--hd:#18262b;--hx:#e8f1ef}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0f1719;--cd:#172226;--tx:#e6eeee;--mu:#8da1a6;--bd:#2a3a3f;--ac:#2dd4bf;--ax:#06201d;--ok:#4ade80;--wn:#fbbf24;--er:#f87171;--hd:#0a1113;--hx:#dbe9e6}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0f1719;--cd:#172226;--tx:#e6eeee;--mu:#8da1a6;--bd:#2a3a3f;--ac:#2dd4bf;--ax:#06201d;--ok:#4ade80;--wn:#fbbf24;--er:#f87171;--hd:#0a1113;--hx:#dbe9e6}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.55 "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+header{background:var(--hd);color:var(--hx);display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 20px}
+header b{font-size:17px}.sp{flex:1}
+nav{display:flex;gap:6px;flex-wrap:wrap;max-width:1040px;margin:14px auto 0;padding:0 16px}
+nav button.on{background:var(--ac);color:var(--ax);border-color:var(--ac)}
+main{max-width:1040px;margin:0 auto;padding:6px 16px 60px}
+h2{font-size:20px;margin:18px 0 10px}h3{font-size:16px;margin:0 0 8px}
+.card{background:var(--cd);border:1px solid var(--bd);border-radius:8px;padding:14px;margin:12px 0;overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:560px}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--bd);vertical-align:middle}
+th{color:var(--mu);font-weight:500;font-size:13px}.r{text-align:right;white-space:nowrap}.mu{color:var(--mu);font-size:13px}
+button{font:inherit;border:1px solid var(--bd);background:var(--cd);color:var(--tx);border-radius:6px;padding:5px 11px;cursor:pointer}
+button.pr{background:var(--ac);color:var(--ax);border-color:var(--ac);font-weight:600}
+button:disabled{opacity:.5;cursor:wait}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+input,select{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:5px 8px}
+input[type=number]{width:96px}
+.bd{display:inline-block;padding:1px 9px;border-radius:99px;font-size:12px;border:1px solid currentColor}
+.ok{color:var(--ok)}.wn{color:var(--wn)}.er{color:var(--er)}.ac{color:var(--ac)}
+.row{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.kpi{flex:1;min-width:150px;border:1px solid var(--bd);border-radius:8px;padding:10px 14px;background:var(--cd)}.kpi b{display:block;font-size:22px}
+.log{font-size:13px;border-bottom:1px solid var(--bd);padding:6px 0;word-break:break-all}
+.tot{font-size:20px;font-weight:700}
+.login{max-width:380px;margin:60px auto}.login input{width:100%;margin:6px 0}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--hd);color:var(--hx);padding:10px 16px;border-radius:8px;max-width:90vw;display:none;z-index:9}
+textarea{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:6px 8px;width:100%}
+button.pick{display:block;flex:1;min-width:260px;text-align:left;margin:0}button.pick:hover{border-color:var(--ac)}
+a.btn{display:inline-block;text-decoration:none;font:inherit;border:1px solid var(--bd);background:var(--cd);color:var(--tx);border-radius:6px;padding:5px 11px}a.btn.pr{background:var(--ac);color:var(--ax);border-color:var(--ac);font-weight:600}
+.terms{max-height:240px;overflow:auto;font-size:13px;color:var(--mu);border-top:1px solid var(--bd);padding-top:6px}.terms p{margin:6px 0}
+@media print{.noprint,header,nav{display:none!important}body{background:#fff;color:#000}.terms{max-height:none!important;overflow:visible!important;color:#000}.card{border:none;padding:0}}
+</style></head><body>
+<header class="noprint"><b>音響器材租賃暨報價管理平台</b><span class="sp"></span><span id="who" class="mu"></span><button id="out" style="display:none" onclick="logout()">登出</button></header>
+<nav id="nav" class="noprint"></nav><main id="app"><noscript><div class="card">請開啟瀏覽器的 JavaScript 才能使用本網站。</div></noscript></main><div id="toast" role="status"></div>
+<script>
+(function(){function show(m){var a=document.getElementById('app');if(a&&!a.innerHTML.trim()){var d=document.createElement('div');d.className='card er';d.textContent='頁面載入失敗：'+m+'（請按 F12 開啟主控台查看詳細訊息）';a.appendChild(d)}}
+window.addEventListener('error',function(e){show(e.message||'未知錯誤')});
+window.addEventListener('unhandledrejection',function(e){show((e.reason&&e.reason.message)||String(e.reason))});
+window.addEventListener('load',function(){setTimeout(function(){var a=document.getElementById('app');if(a&&!a.innerHTML.trim())show('程式沒有正常啟動，可能是 index.html 最上方的 CFG 設定格式有誤，或網路無法載入 Supabase 程式庫')},2500)})})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+// ====== 設定：換成你的 Supabase 專案（Project Settings → API）。anon key 本來就是公開的，安全性由資料庫 RLS 負責 ======
+const CFG={url:'https://YOUR-PROJECT.supabase.co',key:'YOUR-ANON-KEY',
+  company:'獨奏燈光音響', // 乙方名稱
+  contact:{email:'service@soloaudio.tw',phone:'02-1234-5678',line:'https://line.me/R/ti/p/@YOUR_LINE_ID'}}; // 請把 LINE 連結換成實際網址
+
+const RL={member:'會員',sales:'銷售窗口',owner:'老闆',super_admin:'最高管理者'};
+const ST={submitted:['已送出','wn'],processing:['銷售處理中','ac'],formal:['正式報價','ok'],ordered:['已成訂單','ok'],cancelled:['已取消','er'],expired:['已過期','er']};
+const ERR={STOCK_SHORT:'庫存不足',PRICE_BELOW_STANDARD:'客製價不可低於標準售價',NOT_ALLOWED:'沒有權限執行此動作',QUOTE_EXPIRED:'正式報價已過期',QUOTE_NOT_OPEN:'這張需求已被其他銷售承接',NO_ITEMS:'請至少選擇一項器材',CUSTOMER_REQUIRED:'請選擇客戶'};
+const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const M=n=>'NT$'+Math.round(+n||0).toLocaleString('zh-TW'),p2=n=>String(n).padStart(2,'0');
+const fmt=d=>d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());
+const badge=s=>`<span class="bd ${ST[s][1]}">${ST[s][0]}</span>`;
+const typ=q=>q.type=='rental'?'器材租借':'活動演出';
+let tt;function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(tt);tt=setTimeout(()=>t.style.display='none',5000)}
+const errMsg=m=>{const k=Object.keys(ERR).find(k=>String(m).includes(k));return k?ERR[k]+(k=='STOCK_SHORT'?'：'+String(m).split('STOCK_SHORT:')[1]:''):m};
+async function run(p){const r=await p;if(r.error){toast(errMsg(r.error.message));throw r.error}return r.data}
+async function act(fn){try{await fn()}catch(e){console.error(e)}}
+
+let sb,S={user:null,p:null,view:'',eq:[],fees:[],pk:[],hol:{},av:{},Q:[],B:newB(),SE:null,members:[],isc:{},signing:false,contact:false,D:null,prev:'mine'};
+function newB(){return{type:'',step:1,s:'',e:'',sess:1,loc:'',brief:'',people:'',needs:['音響'],pk:'',it:{},fe:{},note:'',from:'',cust:'',saved:'',savedNo:'',skipPk:false}}
+const price=e=>Array.isArray(e.equipment_prices)?e.equipment_prices[0]:e.equipment_prices;
+
+// ---------- 登入 ----------
+async function boot(){
+  if(CFG.url.includes('YOUR-PROJECT')){$('app').innerHTML='<div class="card">請先編輯 index.html 最上方的 CFG，填入 Supabase 專案網址與 anon key。</div>';return}
+  if(typeof supabase==='undefined'){$('app').innerHTML='<div class="card er">無法載入 Supabase 程式庫（cdn.jsdelivr.net）。請檢查網路、廣告攔截器或公司防火牆。</div>';return}
+  try{sb=supabase.createClient(CFG.url,CFG.key);
+    const{data:{session}}=await sb.auth.getSession();await setSession(session);
+    sb.auth.onAuthStateChange((_e,s)=>{if((s?.user?.id||null)!==(S.user?.id||null))setSession(s)});
+  }catch(e){console.error(e);$('app').innerHTML='<div class="card er">啟動失敗：'+esc(e.message)+'<br><span class="mu">請確認 CFG 的專案網址與 anon key 是否正確。</span></div>'}
+}
+async function setSession(s){
+  S.user=s?.user||null;
+  if(!S.user){S.p=null;$('out').style.display='none';$('who').textContent='';$('nav').innerHTML='';return renderLogin()}
+  const{data,error}=await sb.from('profiles').select('*').eq('id',S.user.id).single();S.p=data;
+  if(!S.p){$('out').style.display='';$('app').innerHTML='<div class="card er">已登入，但讀不到使用者資料（profiles）。請確認已在 Supabase 依序執行 001、002、003 三份 SQL，且這個帳號是在執行 SQL 之後才註冊的。<br><span class="mu">'+esc(error?.message||'')+'</span></div>';return}
+  $('who').textContent=(S.p?.name||S.user.email)+'（'+RL[S.p?.role]+'）';$('out').style.display='';
+  await act(loadCatalog);go(tabs()[0][0]);
+}
+function renderLogin(){$('app').innerHTML=`<div class="card login"><h3>登入或註冊</h3><input id="lg_n" placeholder="姓名（註冊時填寫）"><input id="lg_e" type="email" placeholder="Email"><input id="lg_p" type="password" placeholder="密碼（至少 6 碼）"><div class="row"><button class="pr" onclick="login()">登入</button><button onclick="signup()">註冊為會員</button></div></div>`}
+async function login(){await act(async()=>{await run(sb.auth.signInWithPassword({email:$('lg_e').value,password:$('lg_p').value}))})}
+async function signup(){await act(async()=>{const d=await run(sb.auth.signUp({email:$('lg_e').value,password:$('lg_p').value,options:{data:{name:$('lg_n').value}}}));if(!d.session)toast('註冊成功，請到信箱完成驗證後再登入')})}
+async function logout(){await sb.auth.signOut()}
+
+async function loadCatalog(){
+  S.eq=await run(sb.from('equipment').select('id,name,total_quantity,category:equipment_categories(name),equipment_prices(weekday_price,holiday_price,session_price)').eq('is_active',true).order('name'));
+  S.pk=await run(sb.from('event_packages').select('*,event_package_items(equipment_id,quantity)').order('sort'));
+  S.fees=await run(sb.from('extra_fee_types').select('*').eq('is_active',true).order('name'));
+  S.hol={};(await run(sb.from('holidays').select('*'))).forEach(h=>S.hol[h.holiday_date]=h.is_holiday);
+}
+
+// ---------- 導覽 ----------
+function tabs(){const r=S.p?.role;
+  if(r=='member')return[['mine','我的報價'],['new','新增報價'],['profile','我的資料']];
+  if(r=='sales')return[['cases','案件'],['new','替客戶報價'],['profile','我的資料']];
+  const t=[['profit','營運與利潤'],['cases','全部案件'],['prices','價格與成本'],['audit','稽核紀錄']];
+  if(r=='super_admin')t.push(['users','帳號與角色']);return t.concat([['profile','我的資料']])}
+async function go(v){S.view=v;$('nav').innerHTML=tabs().map(([k,l])=>`<button class="${k==v?'on':''}" onclick="go('${k}')">${l}</button>`).join('');
+  await act(async()=>{
+    if(v=='mine'||v=='cases')await loadQuotes();
+    if(v=='new'&&S.p.role=='sales')S.members=await run(sb.from('profiles').select('id,name,company_name').eq('role','member').order('name'));
+    if(v=='profit'){S.profit=await run(sb.from('v_quote_profit').select('*'));await loadQuotes()}
+    if(v=='prices'){S.sc=Object.fromEntries((await run(sb.from('equipment_sales_cost').select('*'))).map(x=>[x.equipment_id,x.sales_cost]));S.rc=Object.fromEntries((await run(sb.from('equipment_real_cost').select('*'))).map(x=>[x.equipment_id,x.real_cost]))}
+    if(v=='audit')S.audit=await run(sb.from('audit_logs').select('*').order('id',{ascending:false}).limit(100));
+    if(v=='users')S.users=await run(sb.from('profiles').select('*').order('created_at'));
+    render()});}
+async function loadQuotes(){
+  S.Q=await run(sb.from('quotes').select('*,customer:profiles!quotes_customer_id_fkey(name,company_name,phone),sales:profiles!quotes_assigned_sales_id_fkey(name),quote_items(*),quote_fees(*)').order('created_at',{ascending:false}));
+  S.isc={};if(S.p.role!='member'){(await run(sb.from('quote_item_sales_cost').select('*'))).forEach(x=>S.isc[x.item_id]=x.sales_cost)}}
+function render(){const v=S.view,f={mine:vMine,cases:vCases,new:vNew,profile:vProfile,profit:vProfit,prices:vPrices,audit:vAudit,users:vUsers,detail:vDetail}[v];$('app').innerHTML=f?f():''}
+
+// ---------- 計價（僅用於預覽；正式金額由資料庫計算）----------
+function days(s,e){if(!s||!e||s>e)return[];const r=[];for(let d=new Date(s+'T00:00:00');fmt(d)<=e&&r.length<61;d.setDate(d.getDate()+1))r.push(fmt(d));return r}
+const isH=d=>d in S.hol?S.hol[d]:[0,6].includes(new Date(d+'T00:00:00').getDay());
+// ---------- 器材租賃／活動詢價（多步驟）----------
+const NEEDS={'音響':'音響','燈光':'燈光','大型投影':'投影','舞台架設':'舞台'};
+const CATS=['音響','燈光','投影','舞台','樂器與配件','其他'];
+const nl=s=>esc(s).replace(/\n/g,'<br>');
+const tierFor=n=>n<50?'t1':n<=250?'t2':n<=500?'t3':'t4';
+const bt=p=>p.budget_max?`NT$${p.budget_min.toLocaleString()}–${p.budget_max.toLocaleString()}`:`NT$${p.budget_min.toLocaleString()} 以上`;
+const PAY='＊立即支付 『銀行代號:國泰世華013 分行代碼:城分行2103 匯款帳號:210-03-500200-3 戶名:獨奏燈光音響阿光』 簽名確認內容並匯款訂金 ＊請備註“訂單號碼” 手續費請自行負擔';
+const TERMS=[
+'01- 請於確認報價日期後2日內支付總計金額 百分之五十為作業預備金至下列乙方提供之帳戶，並完成簽章回傳之程序，待確認簽章回傳後視同合約生效。 ＊如需現金支付亦可',
+'02- 甲方須於乙方架設完畢後應支付剩餘款項給乙方，乙方於收款後須附請款發票或收款證明。',
+'03- 租賃商品之所有權歸乙方所有，甲方未經乙方同意不得轉租，並應盡保管之義務，如有毀損或遺失，甲方須照價賠償。',
+'04- 甲方在支付作業預備金後，若有延誤活動(工程)時間或無故取消時，甲方支付之作業預備金將不予退還。',
+'05- 乙方已出發或開始架設後，甲方延誤活動(工程)時間或無故取消時，甲方須賠償乙方該場活動全額費用。',
+'06- 若因不可抗拒之因素（如：下大雷雨、颱風、地震等…天災），須經甲乙雙方共同討論活動(工程)是否延期或取消。＊若延期需重新議定表單',
+'07- 活動進場日前 14日以內甲方決議如期舉辦後，但因不可抗拒之因素致無法進行，經雙方協調同意取消活動(工程)，甲方支付乙方之作業預備金將不予退還 ， 如未收取預備金或預先執行項目超過超過須補足該費用。',
+'08- 活動進場日前14日以上甲乙雙方決議取消舉辦後，乙方將退還甲方全額作業預備金 ， 已支出或執行項目不做退還 ， 若不足部分需補足。',
+'09- 甲方於乙方活動(工程)架設出班後決議取消，甲方則須支付全額費用。',
+'10- 甲方未約前告知要求18點後(夜間進、撤場)或9點前(施工之須求)額外加收日/夜間工資補貼費用，貨車到不了且須人工搬推運之場地均另加收搬運費。',
+'11- 甲方若欲在租賃品上黏貼任何紙張、廣告…等，請於使用完畢後恢復原狀，若無復原應支付乙方清潔服務費。',
+'12- 氣候惡劣與工程環境不佳，經施乙方確認超出設備乘載度(安全級別)而甲方確認搭設，損壞費用由甲方賠償。',
+'13- 乙方現場工作人員不便隨意離開現場若跨餐點時段 ， 甲方應備餐點與供用餐時間 ， 若無提供餐點 ， 應提供現場人員購買餐點與用餐時間並支付餐點費200元整一餐每人。',
+'*期間如因甲方導致無法提供現場工作人員應有餐點及用餐休息時段所衍生之勞工相關法律責任由甲方全權負責。',
+'14- 會場用品出租皆”定點放置”不含排列/擺設，如有需要將酌收人力費用。',
+'15- 場地搭設及協調之工作由甲方事先協調淨空或申請路權，如有(例：罰款/耽誤加班費/ 停車費)由甲方負責。',
+'16- 設備需之用電經乙方評估規劃後,如需配租用電力系統(例:發電機),若甲方無租借導致電力不堪負(例：跳電、電壓電流不穩等意外狀況) 乙方無須負任何責任，且有權基於用電安全拒絕繼續執行，甲方不得拒絕支付款項， 亦不可要求退款。',
+'17- 甲方同意乙方不限定方式取得並甲乙雙方同意等訊息 ， 如甲乙方通話或活動現場及前後會議內容 ， 雙方資訊等紀錄皆視為合約部分與是否執行之條件 ， 乙方有權於約後依實際需求修改商品品項， 數量 ， 價格 ， 規格，通知甲方， 應視為最終合約之內容。',
+'18- 乙方所交付(例：文件,報價,檔案,備註)皆為合約保密其部分，甲方不得提供第三方資訊,如有甲方同意支付約內費用十倍作為賠償金。＊未執行仍應遵保密義務',
+'19- 甲方未依約規定 如期支付乙方報酬時,甲方須按延遲日 每日而外支付延遲給付金額５％之違約金。',
+'20-除甲方委託乙方代為申請授權外 ,約內使用之影片 ,音樂,, 照片, 設計,伴唱 ,線上資源 ,直轉播內容皆須由甲方取得使用授權 ,乙方無須對使用負責與無檢核義務。',
+'21- 甲乙雙方因本契約所生之糾紛,雙方合意以 台灣新竹地方法院 為第一審管轄法院。'];
+const DOC_CSS='body{font:14px/1.7 "Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;max-width:820px;margin:20px auto;padding:0 12px;color:#111}table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #ddd;padding:6px;text-align:left}.r{text-align:right}.mu{color:#666;font-size:12px}.er{color:#b91c1c}p{margin:6px 0}';
+
+const eqDays=()=>days(S.B.s,S.B.type=='event'?S.B.s:S.B.e);
+function lineOf(e,q){const B=S.B,p=price(e);return B.type=='rental'?days(B.s,B.e).reduce((a,d)=>a+(isH(d)?+p.holiday_price:+p.weekday_price),0)*q:p.session_price*q*(+B.sess||1)}
+async function refreshAvail(){const B=S.B,ds=eqDays();S.av={};if(!ds.length)return render();
+  if(ds.length>60){toast('單張報價最長 60 天');return render()}
+  await act(async()=>{await Promise.all(S.eq.map(async e=>{const d=await run(sb.rpc('check_availability',{p_equipment:e.id,p_start:ds[0],p_end:ds[ds.length-1]}));S.av[e.id]={a:Math.min(...d.map(r=>r.total_qty-r.booked)),t:Math.max(...d.map(r=>r.tentative))}}))});render()}
+function stepBar(){const ev=S.B.type=='event',st=ev?[[1,'選擇類型'],[2,'活動需求'],[3,'建議配置'],[4,'器材細節'],[5,'報價']]:[[1,'選擇類型'],[4,'選擇器材'],[5,'報價']];
+  return`<div class="row noprint">${st.map(([n,l],i)=>`<span class="bd ${n==S.B.step?'ac':'mu'}">${i+1}. ${l}</span>`).join('')}</div>`}
+function vNew(){const B=S.B,b=[null,v1,v2,v3,v4,v5][B.step]();
+  return`<h2>${S.p.role=='sales'?'替客戶建立報價':'器材租賃／活動詢價'}${B.from?'（複製自舊單，價格已改用目前價格）':''}</h2>${B.step>1?stepBar():''}${b}${termsHtml()}`}
+const step=n=>{S.B.step=n;render();window.scrollTo(0,0)};
+
+// 第一步：選擇類型
+function v1(){const cu=S.p.role=='sales'?`<div class="card"><label>客戶 <select onchange="S.B.cust=this.value"><option value="">請選擇</option>${S.members.map(m=>`<option value="${m.id}"${S.B.cust==m.id?' selected':''}>${esc(m.company_name||m.name)}</option>`).join('')}</select></label></div>`:'';
+  return`${cu}<h3>請問您需要哪一種服務？</h3><div class="row" style="align-items:stretch"><button class="card pick" onclick="pickType('rental')"><h3>🎛 器材租賃</h3><span class="mu">單一器材或小量租借，按「天」計費（分平日價與假日價）。直接選擇器材即可產生報價。</span></button><button class="card pick" onclick="pickType('event')"><h3>🎤 活動演出</h3><span class="mu">晚會、婚宴、發表會、演出等，按「場」計費。告訴我們需求，系統會建議配置，再由您調整細節。</span></button></div>`}
+function pickType(t){const B=S.B;if(S.p.role=='sales'&&!B.cust)return toast('請先選擇客戶');B.type=t;B.step=t=='event'?2:4;render();window.scrollTo(0,0)}
+
+// 第二步（活動演出）：日期、地點、簡介、需求
+function v2(){const B=S.B;
+  return`<div class="card"><h3>活動需求</h3><div class="row"><label>活動日期 <input type="date" value="${B.s}" onchange="S.B.s=this.value;S.B.e=this.value"></label><label>場次 <input type="number" min="1" value="${B.sess}" style="width:70px" oninput="S.B.sess=+this.value||1"></label><label>預估人數 <input type="number" min="1" value="${esc(B.people)}" oninput="S.B.people=this.value"></label></div>
+<div class="row"><label style="flex:1;min-width:260px">活動地點 <input style="width:100%" value="${esc(B.loc)}" oninput="S.B.loc=this.value" placeholder="縣市、場地名稱"></label></div>
+<label>活動簡介<br><textarea rows="3" oninput="S.B.brief=this.value" placeholder="活動性質、流程、有無表演或致詞…">${esc(B.brief)}</textarea></label>
+<h3 style="margin-top:14px">需要哪些服務？（可複選）</h3><div class="row">${Object.keys(NEEDS).map(n=>`<label style="display:flex;gap:6px;align-items:center"><input type="checkbox" ${B.needs.includes(n)?'checked':''} onchange="toggleNeed('${n}',this.checked)"> ${n}</label>`).join('')}</div>
+<div class="row"><button onclick="step(1)">上一步</button><button class="pr" onclick="infoNext()">下一步：產生建議配置</button></div></div>`}
+function toggleNeed(n,on){const a=S.B.needs.filter(x=>x!=n);S.B.needs=on?a.concat(n):a}
+function infoNext(){const B=S.B;if(!B.s)return toast('請選擇活動日期');if(!B.loc.trim())return toast('請填寫活動地點');if(!(+B.people>0))return toast('請填寫預估人數');if(!B.needs.length)return toast('請至少選擇一項服務');
+  B.e=B.s;if(B.skipPk){B.step=4;return refreshAvail()}step(3)}
+
+// 第三步（活動演出）：建議配置
+function v3(){const B=S.B,tk=tierFor(+B.people||0),idx=S.pk.findIndex(p=>p.tier_key==tk),cats=B.needs.map(n=>NEEDS[n]);
+  const list=S.pk.filter((p,i)=>idx<0||Math.abs(i-idx)<=1);
+  const cards=list.map(p=>{const its=p.event_package_items.map(x=>({e:S.eq.find(q=>q.id==x.equipment_id),q:x.quantity})).filter(x=>x.e&&cats.includes(x.e.category?.name)),sub=its.reduce((a,x)=>a+price(x.e).session_price*x.q,0);
+    return`<div class="card"><div class="row" style="margin:0"><h3 style="margin:0">${esc(p.name)}</h3>${p.tier_key==tk?'<span class="bd ok">最符合您的人數</span>':''}</div><p class="mu" style="margin:4px 0">建議預算 ${bt(p)}</p><p>${esc(p.summary)}</p><div class="mu">${its.map(x=>esc(x.e.name)+' ×'+x.q).join('、')||'（此配置沒有您勾選的服務項目）'}</div><div class="row"><b>器材預估 ${M(sub)}／場</b><span class="mu">不含運送與架設</span><span class="sp"></span><button class="pr" onclick="pickPk('${p.id}')">選擇此配置</button></div></div>`}).join('');
+  return`<h3>依您的需求（約 ${esc(B.people)} 人）為您建議以下配置</h3>${cards}<div class="row"><button onclick="step(2)">上一步</button><button onclick="skipPk()">不套用，自行選擇器材</button></div>`}
+function pickPk(id){const B=S.B,p=S.pk.find(x=>x.id==id),cats=B.needs.map(n=>NEEDS[n]);B.it={};
+  p.event_package_items.forEach(x=>{const e=S.eq.find(q=>q.id==x.equipment_id);if(e&&cats.includes(e.category?.name))B.it[e.id]=x.quantity});B.pk=id;B.step=4;refreshAvail();window.scrollTo(0,0)}
+function skipPk(){S.B.it={};S.B.pk='';S.B.step=4;refreshAvail();window.scrollTo(0,0)}
+
+// 第四步：器材細節（租賃與活動共用）
+function v4(){const B=S.B,ev=B.type=='event',ds=eqDays(),g={};
+  S.eq.forEach(e=>{const c=e.category?.name||'其他';(g[c]=g[c]||[]).push(e)});
+  const names=CATS.filter(c=>g[c]).concat(Object.keys(g).filter(c=>!CATS.includes(c)));
+  const rows=names.map(c=>`<tr><th colspan="4">${esc(c)}</th></tr>`+g[c].map(e=>{const p=price(e),a=S.av[e.id];
+    return`<tr><td>${esc(e.name)}</td><td>${ev?M(p.session_price)+' ／場':M(p.weekday_price)+' 平日 · '+M(p.holiday_price)+' 假日'}</td><td>${a?`<span class="bd ${a.a<=0?'er':a.a<3?'wn':'ok'}">可用 ${a.a}</span>`+(a.t?` <span class="mu">另有 ${a.t} 件在待確認報價中</span>`:''):'—'}</td><td><input type="number" min="0" max="99" value="${B.it[e.id]||0}" onchange="S.B.it['${e.id}']=+this.value;render()"></td></tr>`}).join('')).join('');
+  const fr=S.fees.map(f=>`<tr><td>${esc(f.name)}</td><td>${M(f.default_amount)}</td><td></td><td><input type="number" min="0" max="99" value="${B.fe[f.id]||0}" onchange="S.B.fe['${f.id}']=+this.value;render()"></td></tr>`).join('');
+  const top=ev?`<p class="mu">活動日期 ${esc(B.s)}　地點 ${esc(B.loc)}　預估 ${esc(B.people)} 人　${B.sess} 場。已依建議配置帶入器材，您可以自行增減、加選麥克風、喇叭、譜架、樂器、舞台監聽等。</p>`
+   :`<div class="row"><label>開始 <input type="date" value="${B.s}" onchange="S.B.s=this.value;if(!S.B.e||S.B.e<S.B.s)S.B.e=S.B.s;refreshAvail()"></label><label>結束 <input type="date" value="${B.e}" onchange="S.B.e=this.value;refreshAvail()"></label><span class="mu">${ds.length?`共 ${ds.length} 天，含假日 ${ds.filter(isH).length} 天`:'請先選擇日期，才會檢查庫存'}</span></div>`;
+  return`<div class="card"><h3>${ev?'器材細節':'選擇器材'}</h3>${top}<table><tr><th>器材</th><th>${ev?'價格（按場計費）':'價格（按日計費）'}</th><th>該期間庫存</th><th>數量</th></tr>${rows}<tr><th colspan="4">附加費用</th></tr>${fr}</table>
+<label>${ev?'說明（其他想補充的器材、現場狀況、特殊需求）':'備註'}<br><textarea rows="3" oninput="S.B.note=this.value">${esc(B.note)}</textarea></label>
+<div class="row"><span class="tot">預估 ${M(draftDoc().total)}</span><span class="sp"></span><button onclick="step(${ev?3:1})">上一步</button><button class="pr" onclick="makeQuote()">產生報價</button></div></div>`}
+function makeQuote(){const B=S.B;if(!eqDays().length)return toast('請填寫正確的日期區間');
+  const sel=S.eq.filter(e=>B.it[e.id]>0);if(!sel.length)return toast('請至少選擇一項器材');
+  const bad=sel.find(e=>S.av[e.id]&&B.it[e.id]>S.av[e.id].a);if(bad)return toast('「'+bad.name+'」在這段期間庫存不足，請調整數量或日期');step(5)}
+
+// 第五步：最終報價
+function draftDoc(){const B=S.B,ev=B.type=='event',p=S.p;
+  const items=S.eq.filter(e=>B.it[e.id]>0).map(e=>{const q=+B.it[e.id],pr=price(e);return{name:e.name,qty:q,unit:ev?M(pr.session_price)+'／場':M(pr.weekday_price)+' 平日 · '+M(pr.holiday_price)+' 假日',line:lineOf(e,q)}});
+  const fees=S.fees.filter(f=>B.fe[f.id]>0).map(f=>({name:f.name,qty:+B.fe[f.id],unit:M(f.default_amount),line:f.default_amount*B.fe[f.id]}));
+  return{no:B.savedNo||'（尚未送出）',type:B.type,s:B.s,e:B.e,sess:+B.sess||1,loc:B.loc,people:B.people,needs:B.needs,tier:S.pk.find(x=>x.id==B.pk)?.name||'',brief:B.brief,note:B.note,items,fees,total:items.concat(fees).reduce((a,x)=>a+x.line,0),cust:p.company_name||p.name,signed:null}}
+function savedDoc(q){const ev=q.type=='event',it=q.intake||{},un=i=>ev?M(i.session_price)+'／場':M(i.weekday_price)+' 平日 · '+M(i.holiday_price)+' 假日';
+  return{no:q.quote_no,type:q.type,s:q.start_date,e:q.end_date,sess:q.session_count,loc:q.event_location,people:it.people,needs:it.needs||[],tier:it.tier,brief:it.brief,note:q.requirements,
+   items:q.quote_items.map(i=>({name:i.name_snapshot,qty:i.quantity,unit:un(i),line:i.line_total})),fees:q.quote_fees.map(f=>({name:f.name_snapshot,qty:f.quantity,unit:M(f.unit_amount),line:f.line_total})),
+   total:q.total,cust:q.customer?.company_name||q.customer?.name||'',signed:q.signed_name?{n:q.signed_name,t:q.signed_at,img:q.signature_data}:null}}
+function docHtml(d){const ev=d.type=='event',rows=d.items.concat(d.fees).map(i=>`<tr><td>${esc(i.name)}</td><td>${esc(i.unit)}</td><td class="r">×${i.qty}</td><td class="r">${M(i.line)}</td></tr>`).join('');
+  const kv=(k,v)=>v?`<tr><td class="mu" style="width:110px">${k}</td><td>${v}</td></tr>`:'';
+  const png=d.signed&&/^data:image\/png;base64,[A-Za-z0-9+\/=]+$/.test(d.signed.img||'');
+  return`<div class="card"><h3>報價單　${esc(d.no)}</h3><table style="min-width:0">${kv('客戶（甲方）',esc(d.cust))}${kv('服務類型',ev?'活動演出（按場計費）':'器材租賃（按日計費）')}${kv('日期',esc(d.s)+(!ev&&d.e!=d.s?' ~ '+esc(d.e):''))}${ev?kv('場次',d.sess)+kv('活動地點',esc(d.loc))+kv('預估人數',esc(d.people))+kv('服務需求',esc((d.needs||[]).join('、')))+kv('建議配置',esc(d.tier))+kv('活動簡介',nl(d.brief)):''}${kv(ev?'說明':'備註',nl(d.note))}</table>
+<table style="margin-top:10px"><tr><th>項目</th><th>單價</th><th class="r">數量</th><th class="r">小計</th></tr>${rows}<tr><td colspan="3" class="r"><b>預估總額</b></td><td class="r tot">${M(d.total)}</td></tr></table>
+<p class="er"><b>網站提供之金額僅提供預估參考，最終價格以專人洽詢為主。</b></p>
+<p class="mu">${ev&&d.sess>1?'活動演出按「場」計費，器材小計已乘以 '+d.sess+' 場。　':''}聯絡窗口：Email <a href="mailto:${esc(CFG.contact.email)}">${esc(CFG.contact.email)}</a>　電話 <a href="tel:${esc(CFG.contact.phone)}">${esc(CFG.contact.phone)}</a>　<a href="${esc(CFG.contact.line)}" target="_blank" rel="noopener">LINE 連結</a></p>
+${d.signed?`<p>已簽名：${esc(d.signed.n)}　${new Date(d.signed.t).toLocaleString('zh-TW',{hour12:false})}${png?`<br><img src="${d.signed.img}" alt="簽名" style="max-width:240px;background:#fff;border:1px solid #ccc">`:''}</p>`:''}</div>`}
+function termsHtml(){const p=S.p||{};
+  return`<div class="card" id="terms"><h3>條款與備註</h3><div class="terms"><p>立契約人　甲方：${esc(p.company_name||p.name||'業主代表單位與代表窗口')}（以下簡稱甲方）<br>　　　　　乙方：${esc(CFG.company)}（以下簡稱乙方）</p>${TERMS.map(t=>`<p>${esc(t)}</p>`).join('')}<p><b>付款方式與注意事項</b><br>${esc(PAY)}</p></div></div>`}
+function v5(){const B=S.B,me=S.p.role=='member';
+  return`<div id="qdoc">${docHtml(draftDoc())}</div>${B.saved?`<div class="card noprint">已送出給銷售窗口，單號 <b>${esc(B.savedNo)}</b>。</div>`:''}
+<div class="row noprint">${me?`<button class="pr" onclick="openSign()">同意並簽名</button><button onclick="chat()">與銷售員對話</button>`:`<button class="pr" onclick="sendSales()">建立報價</button>`}<button onclick="dlDoc()">下載</button><button onclick="window.print()">列印</button><button onclick="editQ()">重新修改訂單</button><button onclick="cancelDraft()">取消</button></div>${S.signing?signPanel():''}${S.contact?contactPanel():''}`}
+
+// ---------- 送出、簽名、聯絡 ----------
+const intakeObj=()=>S.B.type=='event'?{people:+S.B.people||null,needs:S.B.needs,brief:S.B.brief,tier:S.pk.find(x=>x.id==S.B.pk)?.name||null}:null;
+async function saveDraft(){const B=S.B,ev=B.type=='event';if(B.saved)return B.saved;
+  const items=S.eq.filter(e=>B.it[e.id]>0).map(e=>({equipment_id:e.id,quantity:+B.it[e.id]})),fees=S.fees.filter(f=>B.fe[f.id]>0).map(f=>({fee_type_id:f.id,quantity:+B.fe[f.id]}));
+  const id=await run(sb.rpc('rpc_create_quote',{p_type:B.type,p_start:B.s,p_end:ev?B.s:B.e,p_session_count:ev?(+B.sess||1):1,p_location:ev?B.loc:null,p_requirements:B.note||null,p_items:items,p_fees:fees,p_customer_id:B.cust||null,p_source:B.from||null}));
+  B.saved=id;B.savedNo=(await run(sb.from('quotes').select('quote_no').eq('id',id).single())).quote_no;
+  if(ev)await run(sb.rpc('rpc_set_intake',{p_quote:id,p_intake:intakeObj()}));return id}
+const notify=id=>{sb.functions.invoke('notify-quote',{body:{quote_id:id}}).catch(()=>{})};
+const chat=()=>act(async()=>{const id=await saveDraft();notify(id);S.contact=true;render()});
+const sendSales=()=>act(async()=>{const id=await saveDraft();notify(id);toast('報價已建立');S.B=newB();await go('cases')});
+function openSign(){S.signing=true;S.sigDirty=false;render();initSig();$('sigBox').scrollIntoView()}
+function signPanel(){return`<div class="card noprint" id="sigBox"><h3>簽名確認</h3><label>簽名人姓名 <input id="sg_n" value="${esc(S.p.name)}"></label><p class="mu">請在下方方框內簽名（可用滑鼠或手指）</p><canvas id="sig" width="480" height="160" style="width:100%;max-width:480px;background:#fff;border:1px solid var(--bd);border-radius:6px;touch-action:none"></canvas>
+<div class="row"><label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="sg_ok"> 我已閱讀並同意上方「條款與備註」，並了解網站金額僅供預估參考</label></div><div class="row"><button onclick="clearSig()">清除</button><button class="pr" onclick="doSign()">確認簽名並送出</button><button onclick="S.signing=false;render()">取消</button></div></div>`}
+function initSig(){const c=$('sig');if(!c)return;const x=c.getContext('2d');x.lineWidth=2.4;x.lineCap='round';x.strokeStyle='#111';let d=false;
+  const pos=e=>{const r=c.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return[(t.clientX-r.left)*c.width/r.width,(t.clientY-r.top)*c.height/r.height]};
+  const st=e=>{e.preventDefault();d=true;S.sigDirty=true;x.beginPath();x.moveTo(...pos(e))},mv=e=>{if(!d)return;e.preventDefault();x.lineTo(...pos(e));x.stroke()},en=()=>{d=false};
+  c.onmousedown=st;c.onmousemove=mv;c.onmouseup=en;c.onmouseleave=en;c.ontouchstart=st;c.ontouchmove=mv;c.ontouchend=en}
+function clearSig(){const c=$('sig');c.getContext('2d').clearRect(0,0,c.width,c.height);S.sigDirty=false}
+const doSign=()=>act(async()=>{const nm=$('sg_n').value.trim();if(!nm)return toast('請輸入簽名人姓名');if(!$('sg_ok').checked)return toast('請先勾選同意條款');if(!S.sigDirty)return toast('請在方框內簽名');
+  const id=await saveDraft();await run(sb.rpc('rpc_set_intake',{p_quote:id,p_intake:null,p_sign_name:nm,p_sign_data:$('sig').toDataURL('image/png')}));notify(id);
+  toast('已簽名並送出，銷售窗口會盡快與您聯繫');S.B=newB();S.signing=false;S.contact=false;await go('mine')});
+function contactPanel(){const c=CFG.contact;return`<div class="card noprint"><h3>與銷售員對話</h3><p>您的需求已送出（單號 ${esc(S.B.savedNo)}），銷售窗口會盡快與您聯繫。也可以直接聯絡我們：</p><div class="row"><a class="btn pr" href="${esc(c.line)}" target="_blank" rel="noopener">開啟 LINE 對話</a><a class="btn" href="tel:${esc(c.phone)}">撥打 ${esc(c.phone)}</a><a class="btn" href="mailto:${esc(c.email)}?subject=${encodeURIComponent('詢價 '+S.B.savedNo)}">寄 Email</a></div></div>`}
+const editQ=()=>act(async()=>{const B=S.B;if(B.saved){if(!confirm('已送出的需求會先取消，再讓您修改後重新送出。確定要修改？'))return;await run(sb.rpc('rpc_cancel_quote',{p_quote:B.saved}));B.saved='';B.savedNo=''}S.signing=false;S.contact=false;B.step=4;await refreshAvail()});
+const cancelDraft=()=>confirm('確定要取消這張報價？')&&act(async()=>{if(S.B.saved)await run(sb.rpc('rpc_cancel_quote',{p_quote:S.B.saved}));S.B=newB();S.signing=false;S.contact=false;S.av={};await go(S.p.role=='member'?'mine':'cases')});
+function dlDoc(){const no=S.view=='detail'?S.D.quote_no:(S.B.savedNo||'draft');
+  const h='<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>報價單 '+esc(no)+'</title><style>'+DOC_CSS+'</style></head><body>'+$('qdoc').innerHTML+$('terms').outerHTML+'</body></html>';
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([h],{type:'text/html'}));a.download='quote-'+no+'.html';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),3000)}
+
+// ---------- 檢視已送出的表單、複製 ----------
+function vDetail(){return`<h2>報價單內容</h2><div id="qdoc">${docHtml(savedDoc(S.D))}</div><div class="row noprint"><button onclick="go(S.prev)">返回</button><button onclick="dlDoc()">下載</button><button onclick="window.print()">列印</button></div>${termsHtml()}`}
+function viewQ(id){S.D=S.Q.find(x=>x.id==id);S.prev=S.view;S.view='detail';render();window.scrollTo(0,0)}
+function copyQ(id){const q=S.Q.find(x=>x.id==id),it=q.intake||{},b=newB();b.type=q.type;b.from=id;b.cust=q.customer_id;b.sess=q.session_count;b.loc=q.event_location||'';b.people=it.people||'';b.brief=it.brief||'';b.needs=it.needs||['音響'];b.note=q.requirements||'';
+  q.quote_items.forEach(i=>b.it[i.equipment_id]=i.quantity);q.quote_fees.forEach(f=>{if(f.fee_type_id)b.fe[f.fee_type_id]=f.quantity});b.skipPk=true;b.step=q.type=='event'?2:4;
+  S.B=b;S.av={};S.signing=false;S.contact=false;toast('已複製器材與數量，請重新填寫日期');go('new')}
+
+// ---------- 報價列表 ----------
+const sum=q=>q.quote_items.map(i=>esc(i.name_snapshot)+' ×'+i.quantity).join('、');
+function vMine(){const rows=S.Q.map(q=>`<tr><td>${q.quote_no}</td><td>${typ(q)}</td><td>${q.start_date} ~ ${q.end_date}</td><td class="mu">${sum(q)}</td><td>${badge(q.status)}${q.status=='formal'&&q.valid_until?`<div class="mu">有效至 ${q.valid_until}</div>`:''}</td><td class="r">${M(q.total)}</td><td class="r"><button onclick="viewQ('${q.id}')">檢視</button> ${q.status=='formal'?`<button class="pr" onclick="confirmQ('${q.id}')">確認成立訂單</button> `:''}<button onclick="copyQ('${q.id}')">複製為新報價</button>${['submitted','processing','formal'].includes(q.status)?` <button onclick="cancelQ('${q.id}')">取消</button>`:''}</td></tr>`).join('');
+  return`<h2>我的報價</h2><div class="card"><table><tr><th>單號</th><th>類型</th><th>日期</th><th>內容</th><th>狀態</th><th class="r">金額</th><th></th></tr>${rows||'<tr><td colspan="7" class="mu">還沒有報價。到「新增報價」建立第一張。</td></tr>'}</table></div>`}
+const confirmQ=id=>act(async()=>{await run(sb.rpc('rpc_confirm_order',{p_quote:id}));toast('訂單已成立');await go('mine')});
+const cancelQ=id=>confirm('確定取消這張報價？')&&act(async()=>{await run(sb.rpc('rpc_cancel_quote',{p_quote:id}));await go(S.view)});
+
+function vCases(){const me=S.p.id,sales=S.p.role=='sales';
+  const rows=S.Q.map(q=>`<tr><td>${q.quote_no}</td><td>${esc(q.customer?.company_name||q.customer?.name)}</td><td>${typ(q)}</td><td>${q.start_date} ~ ${q.end_date}</td><td>${badge(q.status)}</td><td>${esc(q.sales?.name||'')||'<span class="mu">未指派</span>'}</td><td class="r">${M(q.total)}</td><td class="r"><button onclick="viewQ('${q.id}')">檢視</button> ${sales&&q.status=='submitted'?`<button class="pr" onclick="takeQ('${q.id}')">承接</button>`:sales&&q.status=='processing'&&q.assigned_sales_id==me?`<button class="pr" onclick="S.SE='${q.id}';render()">調整報價</button>`:''} ${sales?`<button onclick="copyQ('${q.id}')">複製</button>`:''}</td></tr>`).join('');
+  return`<h2>案件</h2><div class="card"><table><tr><th>單號</th><th>客戶</th><th>類型</th><th>日期</th><th>狀態</th><th>負責業務</th><th class="r">金額</th><th></th></tr>${rows||'<tr><td colspan="8" class="mu">目前沒有案件。</td></tr>'}</table></div>${vEd()}`}
+const takeQ=id=>act(async()=>{await run(sb.rpc('rpc_take_quote',{p_quote:id}));S.SE=id;await loadQuotes();render()});
+
+// ---------- 銷售：調整客製價格 ----------
+function vEd(){const q=S.Q.find(x=>x.id==S.SE);if(!q||q.status!='processing')return'';const ev=q.type=='event';
+  const rows=q.quote_items.map(i=>{const e=S.eq.find(x=>x.id==i.equipment_id),p=e?price(e):{weekday_price:i.std_weekday,holiday_price:i.std_holiday,session_price:i.std_session},c=S.isc[i.id],inp=(f,k)=>`<input id="p_${i.id}_${f}" type="number" min="${p[k]}" value="${i[f]}">`;
+    return`<tr><td>${esc(i.name_snapshot)} ×${i.quantity}</td><td>${ev?M(p.session_price):M(p.weekday_price)+' / '+M(p.holiday_price)}</td><td>${c==null?'—':M(c)}</td><td>${ev?inp('session_price','session_price'):inp('weekday_price','weekday_price')+' '+inp('holiday_price','holiday_price')}</td></tr>`}).join('');
+  const v=new Date(Date.now()+7*864e5);
+  return`<div class="card"><h3>調整 ${q.quote_no} 的客製價格</h3><table><tr><th>器材</th><th>標準售價</th><th>業務成本</th><th>客製價（不可低於標準售價）</th></tr>${rows}</table>
+<div class="row"><span class="mu">目前金額 ${M(q.total)}</span><label>報價有效至 <input type="date" id="vu" value="${fmt(v)}"></label><span class="sp"></span><button onclick="S.SE=null;render()">關閉</button><button onclick="savePrices('${q.id}')">儲存價格</button><button class="pr" onclick="issueQ('${q.id}')">產生正式報價</button></div></div>`}
+async function savePrices(id,quiet){const q=S.Q.find(x=>x.id==id),ev=q.type=='event';
+  for(const i of q.quote_items){const g=f=>{const el=$('p_'+i.id+'_'+f);return el?+el.value:null};
+    const a=ev?{p_session:g('session_price')}:{p_weekday:g('weekday_price'),p_holiday:g('holiday_price')};
+    const ch=ev?a.p_session!=i.session_price:(a.p_weekday!=i.weekday_price||a.p_holiday!=i.holiday_price);
+    if(ch)await run(sb.rpc('rpc_set_custom_price',{p_item:i.id,...a}))}
+  await loadQuotes();if(!quiet){toast('價格已儲存');render()}}
+const issueQ=id=>act(async()=>{await savePrices(id,true);await run(sb.rpc('rpc_issue_formal_quote',{p_quote:id,p_valid_until:$('vu').value}));toast('已產生正式報價');S.SE=null;await loadQuotes();render()});
+
+// ---------- 老闆／最高管理者 ----------
+function vProfit(){const P=S.profit,rev=P.reduce((a,x)=>a+(+x.items_total||0),0),rc=P.reduce((a,x)=>a+(+x.real_cost_total||0),0);
+  const rows=P.map(x=>`<tr><td>${x.quote_no}</td><td>${badge(x.status)}</td><td class="r">${M(x.total)}</td><td class="r">${M(x.sales_cost_total)}</td><td class="r">${M(x.real_cost_total)}</td><td class="r">${M(x.items_total-x.real_cost_total)}</td></tr>`).join('');
+  return`<h2>營運與利潤</h2><div class="row"><div class="kpi"><span class="mu">器材報價總額</span><b>${M(rev)}</b></div><div class="kpi"><span class="mu">實際成本</span><b>${M(rc)}</b></div><div class="kpi"><span class="mu">器材毛利</span><b>${M(rev-rc)}</b></div></div>
+<div class="card"><table><tr><th>單號</th><th>狀態</th><th class="r">報價總額</th><th class="r">業務成本</th><th class="r">實際成本</th><th class="r">器材毛利</th></tr>${rows}</table></div><p class="mu">包含已取消與已過期的報價；附加費用的成本未計入。</p>`}
+function vPrices(){const rows=S.eq.map(e=>{const p=price(e),i=(k,v)=>`<input id="${k}_${e.id}" type="number" min="0" value="${v??''}">`;
+  return`<tr><td>${esc(e.name)}</td><td>${i('wd',p.weekday_price)} ${i('hd',p.holiday_price)} ${i('ss',p.session_price)}</td><td>${i('sc',S.sc[e.id])}</td><td>${i('rc',S.rc[e.id])}</td><td class="r"><button class="pr" onclick="saveRow('${e.id}')">儲存</button></td></tr>`}).join('');
+  return`<h2>價格與成本</h2><div class="card"><table><tr><th>器材</th><th>標準售價（平日／假日／場次）</th><th>業務成本（銷售可見）</th><th>實際成本（僅老闆與最高管理者）</th><th></th></tr>${rows}</table></div><p class="mu">每次修改都會寫入稽核紀錄。</p>`}
+const saveRow=id=>act(async()=>{const v=k=>+$(k+'_'+id).value;
+  await run(sb.from('equipment_prices').upsert({equipment_id:id,weekday_price:v('wd'),holiday_price:v('hd'),session_price:v('ss')}));
+  await run(sb.from('equipment_sales_cost').upsert({equipment_id:id,sales_cost:v('sc')}));
+  await run(sb.from('equipment_real_cost').upsert({equipment_id:id,real_cost:v('rc')}));
+  toast('已儲存');await loadCatalog();await go('prices')});
+function vAudit(){return`<h2>稽核紀錄（最近 100 筆）</h2><div class="card">${S.audit.map(l=>`<div class="log"><span class="mu">${new Date(l.created_at).toLocaleString('zh-TW',{hour12:false})}</span> ${esc(l.action)} · ${esc(l.entity_type)} · ${esc(l.entity_id)}<div class="mu">${esc(JSON.stringify(l.old_value))} → ${esc(JSON.stringify(l.new_value))}</div></div>`).join('')||'<span class="mu">目前沒有紀錄。</span>'}</div>`}
+function vUsers(){const sl=S.users.filter(u=>u.role=='sales');
+  return`<h2>帳號與角色</h2><div class="card"><table><tr><th>姓名</th><th>公司</th><th>角色</th><th>負責銷售（會員）</th></tr>${S.users.map(u=>`<tr><td>${esc(u.name)}</td><td>${esc(u.company_name)}</td><td><select onchange="setRole('${u.id}',this.value)">${Object.keys(RL).map(r=>`<option value="${r}"${u.role==r?' selected':''}>${RL[r]}</option>`).join('')}</select></td><td>${u.role=='member'?`<select onchange="assign('${u.id}',this.value)"><option value="">未指派</option>${sl.map(s=>`<option value="${s.id}"${u.owner_sales_id==s.id?' selected':''}>${esc(s.name)}</option>`).join('')}</select>`:''}</td></tr>`).join('')}</table></div>`}
+const setRole=(u,r)=>act(async()=>{await run(sb.rpc('admin_set_role',{p_user:u,p_role:r}));toast('角色已更新');await go('users')});
+const assign=(u,s)=>act(async()=>{await run(sb.rpc('assign_sales',{p_member:u,p_sales:s||null}));toast('已更新負責銷售')});
+
+// ---------- 我的資料 ----------
+function vProfile(){const p=S.p,f=(k,l)=>`<label>${l}<br><input id="pf_${k}" value="${esc(p[k])}" style="width:100%;max-width:360px"></label>`;
+  return`<h2>我的資料</h2><div class="card"><div class="row" style="flex-direction:column;align-items:flex-start">${f('name','姓名')}${f('phone','電話')}${f('company_name','公司名稱')}${f('tax_id','統一編號')}<span class="mu">Email：${esc(S.user.email)}</span><button class="pr" onclick="saveProfile()">儲存</button></div></div>`}
+const saveProfile=()=>act(async()=>{const u={};['name','phone','company_name','tax_id'].forEach(k=>u[k]=$('pf_'+k).value||null);u.name=u.name||'';
+  S.p=await run(sb.from('profiles').update(u).eq('id',S.user.id).select().single());$('who').textContent=S.p.name+'（'+RL[S.p.role]+'）';toast('已儲存')});
+
+boot();
+</script></body></html>
